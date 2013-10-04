@@ -1,0 +1,3 @@
+[submodule "digraph"]
+	path = digraph
+	url = git@github.com:damiannz/digraph
