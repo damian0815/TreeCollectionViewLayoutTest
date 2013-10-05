@@ -46,13 +46,25 @@
 
 - (GraphNode*)nodeForIndexPath:(NSIndexPath*)indexPath
 {
-	NSString* label = [NSString stringWithFormat:@"%i",indexPath.row];
+	NSString* label = [self labelForNodeWithIndexPath:indexPath];
 	NSString* key = [self.nodeKeyToLabelMap objectForKey:label];
 	NSAssert(key, @"Failure: no node for this index path");
 	GraphNode* node = [self.tree nodeWithKey:key];
 	NSAssert(node, @"Failure: missing graph node");
 	return node;
 }
+
+- (unsigned int)numNodes
+{
+	return self.tree.allNodes.count;
+}
+
+- (NSString*)labelForNodeWithIndexPath:(NSIndexPath*)indexPath
+{
+	NSString* label = [NSString stringWithFormat:@"%i",indexPath.row];
+	return label;
+}
+
 
 #pragma mark - UICollectionViewDataSource delegate
 
@@ -70,6 +82,7 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
+	//NSLog(@"cell for %@", indexPath);
 	TreeCellView* treeCell = (TreeCellView*)[collectionView dequeueReusableCellWithReuseIdentifier:TREE_CELL_VIEW_REUSE_IDENTIFIER forIndexPath:indexPath];
 	
 	GraphNode* node = [self nodeForIndexPath:indexPath];

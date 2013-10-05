@@ -7,10 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+@class TreeDataSource;
 @class Graph;
 
 @interface CollectionViewTreeLayout : UICollectionViewLayout
 
-@property (strong,readwrite,atomic) Graph* tree;
+@property (strong,readwrite,nonatomic) Graph* tree;
+@property (strong,readwrite,nonatomic) TreeDataSource* dataSource;
+
 
 @end

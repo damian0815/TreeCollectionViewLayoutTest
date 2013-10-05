@@ -15,8 +15,8 @@
 @interface ViewController ()
 
 @property (strong,readwrite,atomic) Graph* graph;
-//@property (strong,readwrite,atomic) CollectionViewTreeLayout* layout;
-@property (strong,readwrite,atomic) UICollectionViewFlowLayout* layout;
+@property (strong,readwrite,atomic) CollectionViewTreeLayout* layout;
+//@property (strong,readwrite,atomic) UICollectionViewFlowLayout* layout;
 
 @property (strong,readwrite,atomic) TreeDataSource* dataSource;
 
@@ -27,8 +27,8 @@
 - (id)init
 {
 	
-	//CollectionViewTreeLayout* layout = [[CollectionViewTreeLayout alloc] init];
-	UICollectionViewFlowLayout* layout = [[UICollectionViewFlowLayout alloc] init];
+	CollectionViewTreeLayout* layout = [[CollectionViewTreeLayout alloc] init];
+	//UICollectionViewFlowLayout* layout = [[UICollectionViewFlowLayout alloc] init];
 	self = [super initWithCollectionViewLayout:layout];
 	if ( self ) {
 		self.layout = layout;
@@ -86,11 +86,13 @@
 		[self buildGraphWithRoot:root maxNodes:numNodes];
 	}
 	
-	//self.layout.tree = self.graph;
+	self.layout.tree = self.graph;
 	
 	self.dataSource = [[TreeDataSource alloc] initWithTree:self.graph];
 	self.collectionView.dataSource = self.dataSource;
 	self.collectionView.delegate = self;
+	
+	self.layout.dataSource = self.dataSource;
 	
 	[self.collectionView registerClass:[TreeCellView class] forCellWithReuseIdentifier:TREE_CELL_VIEW_REUSE_IDENTIFIER];
 	

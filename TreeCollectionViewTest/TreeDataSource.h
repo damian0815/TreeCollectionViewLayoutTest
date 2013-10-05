@@ -13,5 +13,8 @@
 
 - (id)initWithTree:(Graph*)tree;
 
+- (unsigned int)numNodes;
+- (NSString*)labelForNodeWithIndexPath:(NSIndexPath*)indexPath;
+
 
 @end
