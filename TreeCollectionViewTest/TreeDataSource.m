@@ -13,6 +13,7 @@
 @interface TreeDataSource()
 
 @property (strong,readwrite,atomic) NSMutableDictionary* nodeKeyToLabelMap;
+@property (strong,readwrite,atomic) NSMutableDictionary* labelToNodeKeyMap;
 @property (strong,readwrite,atomic) Graph* tree;
 
 @end
@@ -25,6 +26,7 @@
 	if ( self ) {
 		self.tree = tree;
 		self.nodeKeyToLabelMap = [NSMutableDictionary dictionary];
+		self.labelToNodeKeyMap = [NSMutableDictionary dictionary];
 		[self labelNodes:[tree allNodes]];
 	}
 	return self;
@@ -42,12 +44,13 @@
 	NSAssert(![self.nodeKeyToLabelMap objectForKey:n.key], @"Failure: already labelled this node");
 	NSString* label = [NSString stringWithFormat:@"%i",self.nodeKeyToLabelMap.count];
 	[self.nodeKeyToLabelMap setObject:label forKey:n.key];
+	[self.labelToNodeKeyMap setObject:n.key forKey:label];
 }
 
 - (GraphNode*)nodeForIndexPath:(NSIndexPath*)indexPath
 {
 	NSString* label = [self labelForNodeWithIndexPath:indexPath];
-	NSString* key = [self.nodeKeyToLabelMap objectForKey:label];
+	NSString* key = [self.labelToNodeKeyMap objectForKey:label];
 	NSAssert(key, @"Failure: no node for this index path");
 	GraphNode* node = [self.tree nodeWithKey:key];
 	NSAssert(node, @"Failure: missing graph node");

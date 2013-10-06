@@ -18,11 +18,16 @@
 @property (assign,readwrite,atomic) float nodeCharge;
 @property (assign,readwrite,atomic) float springConstant;
 @property (assign,readwrite,atomic) float damping;
+@property (assign,readwrite,atomic) float restLength;
+@property (assign,readwrite,atomic) float gravity;
 
 - (id)initWithGraph:(Graph*)graph;
+- (void)anchorNode:(GraphNode*)node;
 
 - (void)addNode:(GraphNode*)node;
 
 - (void)applyForce;
+
+- (CGPoint)positionForNode:(NSString*)nodeKey;
 
 @end

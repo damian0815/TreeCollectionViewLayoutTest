@@ -27,6 +27,7 @@
 		2D93E13C17FECD0A0010F6DA /* GraphNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D93E12C17FECD0A0010F6DA /* GraphNode.m */; };
 		2D93E14717FED3D30010F6DA /* TreeDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D93E14617FED3D30010F6DA /* TreeDataSource.m */; };
 		2D93E14A17FEDFD90010F6DA /* TreeCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D93E14917FEDFD90010F6DA /* TreeCellView.m */; };
+		2DE2AF2C18018F30008098D7 /* CGPoint+Vector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2AF2B18018F30008098D7 /* CGPoint+Vector.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,8 @@
 		2D93E14617FED3D30010F6DA /* TreeDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TreeDataSource.m; sourceTree = "<group>"; };
 		2D93E14817FEDFD90010F6DA /* TreeCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TreeCellView.h; sourceTree = "<group>"; };
 		2D93E14917FEDFD90010F6DA /* TreeCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TreeCellView.m; sourceTree = "<group>"; };
+		2DE2AF2B18018F30008098D7 /* CGPoint+Vector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CGPoint+Vector.m"; sourceTree = "<group>"; };
+		2DE2AF2D18018F3E008098D7 /* CGPoint+Vector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CGPoint+Vector.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +149,8 @@
 				2D93E12317FECCB10010F6DA /* ForceDirectedGraphArranger.m */,
 				2D93E0C117FECAFE0010F6DA /* Images.xcassets */,
 				2D93E0B017FECAFE0010F6DA /* Supporting Files */,
+				2DE2AF2B18018F30008098D7 /* CGPoint+Vector.m */,
+				2DE2AF2D18018F3E008098D7 /* CGPoint+Vector.h */,
 			);
 			path = TreeCollectionViewTest;
 			sourceTree = "<group>";
@@ -304,6 +309,7 @@
 				2D93E0E017FECB9F0010F6DA /* CollectionViewTreeLayout.m in Sources */,
 				2D93E0B617FECAFE0010F6DA /* main.m in Sources */,
 				2D93E13C17FECD0A0010F6DA /* GraphNode.m in Sources */,
+				2DE2AF2C18018F30008098D7 /* CGPoint+Vector.m in Sources */,
 				2D93E12417FECCB10010F6DA /* ForceDirectedGraphArranger.m in Sources */,
 				2D93E14717FED3D30010F6DA /* TreeDataSource.m in Sources */,
 			);
@@ -506,6 +512,7 @@
 				2D93E0DA17FECAFF0010F6DA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2D93E0DB17FECAFF0010F6DA /* Build configuration list for PBXNativeTarget "TreeCollectionViewTestTests" */ = {
 			isa = XCConfigurationList;
@@ -514,6 +521,7 @@
 				2D93E0DD17FECAFF0010F6DA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

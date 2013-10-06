@@ -9,11 +9,13 @@
 #import <UIKit/UIKit.h>
 
 @class Graph;
+@class GraphNode;
 @interface TreeDataSource : NSObject<UICollectionViewDataSource>
 
 - (id)initWithTree:(Graph*)tree;
 
 - (unsigned int)numNodes;
+- (GraphNode*)nodeForIndexPath:(NSIndexPath*)indexPath;
 - (NSString*)labelForNodeWithIndexPath:(NSIndexPath*)indexPath;
 
 

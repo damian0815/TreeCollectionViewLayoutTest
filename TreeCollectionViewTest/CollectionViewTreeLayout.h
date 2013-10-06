@@ -7,6 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+
+#import "ForceDirectedGraphArranger.h"
+
 @class TreeDataSource;
 @class Graph;
 
@@ -14,6 +17,8 @@
 
 @property (strong,readwrite,nonatomic) Graph* tree;
 @property (strong,readwrite,nonatomic) TreeDataSource* dataSource;
+
+@property (readonly,atomic) ForceDirectedGraphArranger* arranger;
 
 
 @end
