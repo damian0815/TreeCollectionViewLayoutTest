@@ -63,13 +63,14 @@
 	self = [super init];
 	if ( self ) {
 		self.nodes = [NSMutableDictionary dictionary];
-		self.graph = graph;
 		self.nodeMass = 1.0f;
 		self.nodeCharge = 1.0f;
 		self.springConstant = 0.01f;
 		self.damping = 0.1f;
 		self.restLength = 100.0f;
 		self.gravity = 0.0f;
+		
+		self.graph = graph;
 		
 	}
 	return self;
@@ -80,7 +81,10 @@
 	_graph = graph;
 	
 	[self.nodes removeAllObjects];
-	for (GraphNode* node in graph.allNodes) {
+	
+	NSArray* sortedNodes = [Graph topologicalSortWithNodes:[graph allNodes]];
+	
+	for (GraphNode* node in sortedNodes) {
 		[self addNode:node];
 	}
 }
@@ -95,15 +99,78 @@
 {
 	ForceDirectedGraphArrangerNodeInfo* nodeInfo = [[ForceDirectedGraphArrangerNodeInfo alloc] init];
 	nodeInfo.nodeKey = node.key;
-	nodeInfo.position = CGPointMake(200+arc4random_uniform(100),200+arc4random_uniform(100));
+	// try to find a parent
+	GraphNode* parent = [[node inNodes] anyObject];
+	if ( parent ) {
+		NSSet* siblings = [parent outNodes];
+		float baseAngle = 0.0f;
+		float angleSpread = (float)M_PI*2.0f;
+		GraphNode* grandparent = [[parent inNodes] anyObject];
+		if ( grandparent ) {
+			ForceDirectedGraphArrangerNodeInfo* grandparentInfo = [self nodeForGraphNode:grandparent];
+			ForceDirectedGraphArrangerNodeInfo* parentInfo = [self nodeForGraphNode:parent];
+			if ( grandparentInfo && parentInfo ) {
+				// baseAngle = angle from parent to grandparent + 90
+				CGPoint grandparentDirection = CGPointDelta( parentInfo.position, grandparentInfo.position );
+				
+				baseAngle = atan2f( grandparentDirection.y, grandparentDirection.x);
+				baseAngle += M_PI_2;
+				
+				angleSpread = (float)M_PI;
+			}
+		}
+		
+		// count siblings
+		unsigned int siblingCount = siblings.count;
+		
+		// our angle is (360/totalNumSiblings)*(numSiblingsAlreadyInArranger)
+		unsigned int numSiblingsAlreadyIn = 0;
+		for ( GraphNode* sibling in siblings ) {
+			if ( [self nodeForGraphNode:sibling] ) {
+				numSiblingsAlreadyIn++;
+			}
+		}
+		float angle = baseAngle + (angleSpread/(double)(siblingCount))*(double)numSiblingsAlreadyIn;
+		NSLog(@"got angle %f (sibling %i/%i)", angle, siblingCount, numSiblingsAlreadyIn);
+	
+		// add at the correct angle away from the parent
+		float r = self.restLength*1.5;
+		CGPoint relativePosition = CGPointMake(r*cosf(angle), r*sinf(angle));
+		relativePosition = CGPointAdd( relativePosition, CGPointMake( arc4random_uniform(30), arc4random_uniform(30) ) );
+		
+		CGPoint parentPosition = [self positionForNode:parent.key];
+		CGPoint absolutePosition = CGPointAdd(parentPosition,relativePosition);
+		
+		nodeInfo.position = absolutePosition;
+	}
+	else
+	{
+		// add somewhere random
+		nodeInfo.position = CGPointMake(200+arc4random_uniform(100),200+arc4random_uniform(100));
+	}
+	
 	nodeInfo.prevPosition = nodeInfo.position;
 	[self.nodes setObject:nodeInfo forKey:node.key];
 }
 
+- (void) shuffleArray:(NSMutableArray*)array
+{
+	NSUInteger count = [array count];
+	for (NSUInteger i = 0; i < count; ++i) {
+		// Select a random element between i and end of array to swap with.
+		NSInteger nElements = count - i;
+		NSInteger n = arc4random_uniform(nElements) + i;
+		[array exchangeObjectAtIndex:i withObjectAtIndex:n];
+	}
+}
+
 - (void)applyForce
 {
-	float distanceThresh = 1000;
-	for ( ForceDirectedGraphArrangerNodeInfo* nodeInfo in [self.nodes allValues] ) {
+	float distanceThresh = 2000;
+	NSMutableArray* allNodes = [[self.nodes allValues] mutableCopy];
+	// shuffle
+	[self shuffleArray:allNodes];
+	for ( ForceDirectedGraphArrangerNodeInfo* nodeInfo in allNodes ) {
 		// store previous position
 		nodeInfo.prevPosition = nodeInfo.position;
 		if ( nodeInfo.anchored ) {
@@ -114,7 +181,8 @@
 		nodeInfo.position = CGPointAdd(nodeInfo.position,CGPointMake(0,self.gravity));
 		
 		// be driven away from all other nodes, inverse squared falloff
-		NSArray* neighbours = [self nodesNear:nodeInfo.nodeKey distanceThreshold:distanceThresh];
+		NSMutableArray* neighbours = [[self nodesNear:nodeInfo.nodeKey distanceThreshold:distanceThresh] mutableCopy];
+		[self shuffleArray:neighbours];
 		for ( ForceDirectedGraphArrangerNodeInfo* neighbour in neighbours ) {
 			CGPoint delta = [nodeInfo deltaTo:neighbour];
 			float sqDist = CGPointMagnitudeSquared(delta);
@@ -123,9 +191,9 @@
 			CGPoint direction;
 			if ( fequal(dist,0) ) {
 				pushAmount = 1.0f;
-				direction = CGPointMake(1,0);
+				direction = CGPointMake(0,0);
 			} else {
-				pushAmount = 1.0f/dist;
+				pushAmount = 1.0f/sqDist;
 				direction = CGPointMultiply(delta,1.0f/dist);
 			}
 			
@@ -137,7 +205,8 @@
 		// be pulled toward parents and children
 		GraphNode* node = [self.graph nodeWithKey:nodeInfo.nodeKey];
 		//NSSet* relatives = [[node outNodes] setByAddingObjectsFromSet:[node inNodes]];
-		NSSet* relatives = [node inNodes];
+		NSMutableArray* relatives = [[[node inNodes] allObjects] mutableCopy];
+		[self shuffleArray:relatives];
 		for ( GraphNode* relative in relatives ) {
 			ForceDirectedGraphArrangerNodeInfo* relativeInfo = [self nodeForGraphNode:relative];
 			CGPoint delta = [nodeInfo deltaTo:relativeInfo];
@@ -187,5 +256,7 @@
 	NSAssert(nodeInfo, @"Couldn't find node for key");
 	return nodeInfo.position;
 }
+
+
 
 @end

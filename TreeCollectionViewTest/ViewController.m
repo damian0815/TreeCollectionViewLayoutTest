@@ -110,13 +110,13 @@
 	// make sliders
 	UISlider* chargeSlider = [[UISlider alloc] initWithFrame:CGRectMake(0,20,300,10)];
 	[chargeSlider setMinimumValue:0.0f];
-	[chargeSlider setMaximumValue:1000.0f];
+	[chargeSlider setMaximumValue:10000.0f];
 	[chargeSlider addTarget:self action:@selector(chargeSliderMoved:) forControlEvents:UIControlEventValueChanged];
 	[self.view addSubview:chargeSlider];
 	
-	UISlider* pullSlider = [[UISlider alloc] initWithFrame:CGRectMake(0,40,300,10)];
+	UISlider* pullSlider = [[UISlider alloc] initWithFrame:CGRectMake(0,60,300,10)];
 	[pullSlider setMinimumValue:0.0f];
-	[pullSlider setMaximumValue:1.0f];
+	[pullSlider setMaximumValue:0.1f];
 	[pullSlider addTarget:self action:@selector(pullSliderMoved:) forControlEvents:UIControlEventValueChanged];
 	[self.view addSubview:pullSlider];
 	
