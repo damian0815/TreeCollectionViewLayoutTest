@@ -7,13 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D41C6CC1801DB770030EE5A /* GraphBrowseByScrollViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D41C6CB1801DB770030EE5A /* GraphBrowseByScrollViewController.m */; };
+		2D41C6CF1801DCA40030EE5A /* GraphBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D41C6CE1801DCA40030EE5A /* GraphBuilder.m */; };
 		2D93E0AA17FECAFE0010F6DA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D93E0A917FECAFE0010F6DA /* Foundation.framework */; };
 		2D93E0AC17FECAFE0010F6DA /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D93E0AB17FECAFE0010F6DA /* CoreGraphics.framework */; };
 		2D93E0AE17FECAFE0010F6DA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D93E0AD17FECAFE0010F6DA /* UIKit.framework */; };
 		2D93E0B417FECAFE0010F6DA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2D93E0B217FECAFE0010F6DA /* InfoPlist.strings */; };
 		2D93E0B617FECAFE0010F6DA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D93E0B517FECAFE0010F6DA /* main.m */; };
 		2D93E0BA17FECAFE0010F6DA /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D93E0B917FECAFE0010F6DA /* AppDelegate.m */; };
-		2D93E0C017FECAFE0010F6DA /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D93E0BF17FECAFE0010F6DA /* ViewController.m */; };
+		2D93E0C017FECAFE0010F6DA /* GraphBrowseByCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D93E0BF17FECAFE0010F6DA /* GraphBrowseByCollectionViewController.m */; };
 		2D93E0C217FECAFE0010F6DA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2D93E0C117FECAFE0010F6DA /* Images.xcassets */; };
 		2D93E0C917FECAFF0010F6DA /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D93E0C817FECAFF0010F6DA /* XCTest.framework */; };
 		2D93E0CA17FECAFF0010F6DA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D93E0A917FECAFE0010F6DA /* Foundation.framework */; };
@@ -41,6 +43,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2D41C6CA1801DB770030EE5A /* GraphBrowseByScrollViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphBrowseByScrollViewController.h; sourceTree = "<group>"; };
+		2D41C6CB1801DB770030EE5A /* GraphBrowseByScrollViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphBrowseByScrollViewController.m; sourceTree = "<group>"; };
+		2D41C6CD1801DCA40030EE5A /* GraphBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphBuilder.h; sourceTree = "<group>"; };
+		2D41C6CE1801DCA40030EE5A /* GraphBuilder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphBuilder.m; sourceTree = "<group>"; };
 		2D93E0A617FECAFE0010F6DA /* TreeCollectionViewTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TreeCollectionViewTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D93E0A917FECAFE0010F6DA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2D93E0AB17FECAFE0010F6DA /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -51,8 +57,8 @@
 		2D93E0B717FECAFE0010F6DA /* TreeCollectionViewTest-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TreeCollectionViewTest-Prefix.pch"; sourceTree = "<group>"; };
 		2D93E0B817FECAFE0010F6DA /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		2D93E0B917FECAFE0010F6DA /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		2D93E0BE17FECAFE0010F6DA /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		2D93E0BF17FECAFE0010F6DA /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		2D93E0BE17FECAFE0010F6DA /* GraphBrowseByCollectionViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GraphBrowseByCollectionViewController.h; sourceTree = "<group>"; };
+		2D93E0BF17FECAFE0010F6DA /* GraphBrowseByCollectionViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GraphBrowseByCollectionViewController.m; sourceTree = "<group>"; };
 		2D93E0C117FECAFE0010F6DA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		2D93E0C717FECAFF0010F6DA /* TreeCollectionViewTestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TreeCollectionViewTestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D93E0C817FECAFF0010F6DA /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -137,8 +143,12 @@
 				2D93E12517FECD0A0010F6DA /* digraph */,
 				2D93E0B817FECAFE0010F6DA /* AppDelegate.h */,
 				2D93E0B917FECAFE0010F6DA /* AppDelegate.m */,
-				2D93E0BE17FECAFE0010F6DA /* ViewController.h */,
-				2D93E0BF17FECAFE0010F6DA /* ViewController.m */,
+				2D41C6CA1801DB770030EE5A /* GraphBrowseByScrollViewController.h */,
+				2D41C6CB1801DB770030EE5A /* GraphBrowseByScrollViewController.m */,
+				2D93E0BE17FECAFE0010F6DA /* GraphBrowseByCollectionViewController.h */,
+				2D93E0BF17FECAFE0010F6DA /* GraphBrowseByCollectionViewController.m */,
+				2D41C6CD1801DCA40030EE5A /* GraphBuilder.h */,
+				2D41C6CE1801DCA40030EE5A /* GraphBuilder.m */,
 				2D93E14817FEDFD90010F6DA /* TreeCellView.h */,
 				2D93E14917FEDFD90010F6DA /* TreeCellView.m */,
 				2D93E0DE17FECB9F0010F6DA /* CollectionViewTreeLayout.h */,
@@ -304,10 +314,12 @@
 				2D93E14A17FEDFD90010F6DA /* TreeCellView.m in Sources */,
 				2D93E13A17FECD0A0010F6DA /* Graph.m in Sources */,
 				2D93E13B17FECD0A0010F6DA /* GraphEdge.m in Sources */,
-				2D93E0C017FECAFE0010F6DA /* ViewController.m in Sources */,
+				2D93E0C017FECAFE0010F6DA /* GraphBrowseByCollectionViewController.m in Sources */,
+				2D41C6CF1801DCA40030EE5A /* GraphBuilder.m in Sources */,
 				2D93E0BA17FECAFE0010F6DA /* AppDelegate.m in Sources */,
 				2D93E0E017FECB9F0010F6DA /* CollectionViewTreeLayout.m in Sources */,
 				2D93E0B617FECAFE0010F6DA /* main.m in Sources */,
+				2D41C6CC1801DB770030EE5A /* GraphBrowseByScrollViewController.m in Sources */,
 				2D93E13C17FECD0A0010F6DA /* GraphNode.m in Sources */,
 				2DE2AF2C18018F30008098D7 /* CGPoint+Vector.m in Sources */,
 				2D93E12417FECCB10010F6DA /* ForceDirectedGraphArranger.m in Sources */,

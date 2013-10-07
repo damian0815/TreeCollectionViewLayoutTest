@@ -18,7 +18,7 @@
 @property (assign,readwrite,atomic) float nodeCharge;
 @property (assign,readwrite,atomic) float springConstant;
 @property (assign,readwrite,atomic) float damping;
-@property (assign,readwrite,atomic) float restLength;
+@property (assign,readwrite,atomic) float startRestLength;
 @property (assign,readwrite,atomic) float gravity;
 
 - (id)initWithGraph:(Graph*)graph;

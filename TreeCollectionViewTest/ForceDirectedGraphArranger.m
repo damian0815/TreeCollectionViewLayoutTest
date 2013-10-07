@@ -15,7 +15,9 @@
 @property (readwrite,copy,atomic) NSString* nodeKey;
 @property (readwrite,assign,atomic) BOOL anchored;
 @property (readwrite,assign,atomic) CGPoint position;
-@property (readwrite,assign,atomic) CGPoint prevPosition;
+@property (readwrite,assign,atomic) CGPoint velocity;
+@property (readwrite,assign,atomic) CGPoint force;
+@property (readwrite,assign,atomic) float restLength;
 
 - (float)distanceSquaredTo:(ForceDirectedGraphArrangerNodeInfo*)othernode;
 
@@ -67,7 +69,7 @@
 		self.nodeCharge = 1.0f;
 		self.springConstant = 0.01f;
 		self.damping = 0.1f;
-		self.restLength = 100.0f;
+		self.startRestLength = 50.0f;
 		self.gravity = 0.0f;
 		
 		self.graph = graph;
@@ -131,10 +133,9 @@
 			}
 		}
 		float angle = baseAngle + (angleSpread/(double)(siblingCount))*(double)numSiblingsAlreadyIn;
-		NSLog(@"got angle %f (sibling %i/%i)", angle, siblingCount, numSiblingsAlreadyIn);
 	
 		// add at the correct angle away from the parent
-		float r = self.restLength*1.5;
+		float r = self.startRestLength*2.0f;
 		CGPoint relativePosition = CGPointMake(r*cosf(angle), r*sinf(angle));
 		relativePosition = CGPointAdd( relativePosition, CGPointMake( arc4random_uniform(30), arc4random_uniform(30) ) );
 		
@@ -149,7 +150,9 @@
 		nodeInfo.position = CGPointMake(200+arc4random_uniform(100),200+arc4random_uniform(100));
 	}
 	
-	nodeInfo.prevPosition = nodeInfo.position;
+	nodeInfo.velocity = CGPointZero;
+	nodeInfo.force = CGPointZero;
+	nodeInfo.restLength = self.startRestLength;
 	[self.nodes setObject:nodeInfo forKey:node.key];
 }
 
@@ -166,23 +169,28 @@
 
 - (void)applyForce
 {
-	float distanceThresh = 2000;
+	float invMass = 1.0f/self.nodeMass;
+	float t = 1.0f;
+	float distanceThresh = 200;
+	
 	NSMutableArray* allNodes = [[self.nodes allValues] mutableCopy];
-	// shuffle
-	[self shuffleArray:allNodes];
+	// reset force
 	for ( ForceDirectedGraphArrangerNodeInfo* nodeInfo in allNodes ) {
-		// store previous position
-		nodeInfo.prevPosition = nodeInfo.position;
+		nodeInfo.force = CGPointZero;
+	}
+
+	for ( ForceDirectedGraphArrangerNodeInfo* nodeInfo in allNodes ) {
 		if ( nodeInfo.anchored ) {
 			continue;
 		}
-		
 		// be pulled downwards
-		nodeInfo.position = CGPointAdd(nodeInfo.position,CGPointMake(0,self.gravity));
+		nodeInfo.force = CGPointAdd(nodeInfo.force, CGPointMake(0, self.gravity*self.nodeMass));
+		// damp velocities
+		nodeInfo.force = CGPointAdd(nodeInfo.force, CGPointMultiply(nodeInfo.velocity, -self.damping));
+		
 		
 		// be driven away from all other nodes, inverse squared falloff
-		NSMutableArray* neighbours = [[self nodesNear:nodeInfo.nodeKey distanceThreshold:distanceThresh] mutableCopy];
-		[self shuffleArray:neighbours];
+		NSArray* neighbours = [self nodesNear:nodeInfo.nodeKey distanceThreshold:distanceThresh];
 		for ( ForceDirectedGraphArrangerNodeInfo* neighbour in neighbours ) {
 			CGPoint delta = [nodeInfo deltaTo:neighbour];
 			float sqDist = CGPointMagnitudeSquared(delta);
@@ -198,15 +206,13 @@
 			}
 			
 			pushAmount *= self.nodeCharge;
-			
-			nodeInfo.position = CGPointAdd(nodeInfo.position, CGPointMultiply(direction,-pushAmount));
+			nodeInfo.force = CGPointAdd(nodeInfo.force,CGPointMultiply(direction,-pushAmount));
 		}
 		
 		// be pulled toward parents and children
 		GraphNode* node = [self.graph nodeWithKey:nodeInfo.nodeKey];
-		//NSSet* relatives = [[node outNodes] setByAddingObjectsFromSet:[node inNodes]];
-		NSMutableArray* relatives = [[[node inNodes] allObjects] mutableCopy];
-		[self shuffleArray:relatives];
+		//NSMutableArray* relatives = [[[[node outNodes] setByAddingObjectsFromSet:[node inNodes]] allObjects] mutableCopy];
+		NSSet* relatives = [node inNodes];
 		for ( GraphNode* relative in relatives ) {
 			ForceDirectedGraphArrangerNodeInfo* relativeInfo = [self nodeForGraphNode:relative];
 			CGPoint delta = [nodeInfo deltaTo:relativeInfo];
@@ -219,10 +225,25 @@
 			} else {
 				direction = CGPointMultiply(delta,1.0f/dist);
 			}
-			float moveDist = (dist-self.restLength)*self.springConstant;
-			
-			nodeInfo.position = CGPointAdd(nodeInfo.position, CGPointMultiply(direction,moveDist));
+			//float moveDist = (dist-nodeInfo.restLength)*self.springConstant;
+			CGPoint springForce = CGPointMultiply(direction,0.5f*self.springConstant*log10f(dist/nodeInfo.restLength));
+			relativeInfo.force = CGPointAdd(relativeInfo.force,CGPointMultiply(springForce,-1.0f));
+			nodeInfo.force = CGPointAdd(nodeInfo.force,springForce);
 		}
+		
+	}
+	
+	
+	for ( ForceDirectedGraphArrangerNodeInfo* nodeInfo in allNodes ) {
+		if ( nodeInfo.anchored ) {
+			continue;
+		}
+		CGPoint newVelocity = CGPointAdd(nodeInfo.velocity, CGPointMultiply(nodeInfo.force, t*invMass));
+		CGPoint newPosition = CGPointAdd(nodeInfo.position, CGPointMultiply(newVelocity, t));
+		nodeInfo.velocity = newVelocity;
+		nodeInfo.position = newPosition;
+		NSAssert(!isnan(nodeInfo.position.x), @"NaN");
+		NSAssert(!isnan(nodeInfo.position.y), @"NaN");
 	}
 }
 

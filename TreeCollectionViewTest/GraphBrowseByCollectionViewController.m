@@ -6,13 +6,14 @@
 //  Copyright (c) 2013 jack. All rights reserved.
 //
 
-#import "ViewController.h"
+#import "GraphBrowseByCollectionViewController.h"
 #import "Graph.h"
 #import "CollectionViewTreeLayout.h"
 #import "TreeCellView.h"
 #import "TreeDataSource.h"
+#import "GraphBuilder.h"
 
-@interface ViewController ()
+@interface GraphBrowseByCollectionViewController ()
 
 @property (strong,readwrite,atomic) Graph* graph;
 @property (strong,readwrite,atomic) CollectionViewTreeLayout* layout;
@@ -24,7 +25,7 @@
 
 @end
 
-@implementation ViewController
+@implementation GraphBrowseByCollectionViewController
 
 - (id)init
 {
@@ -38,38 +39,7 @@
 	return self;
 }
 
-- (unsigned int)numDescendantsOfNode:(GraphNode*)root
-{
-	//NSLog(@"counting descendants of %@", root.key);
-	unsigned int count = 0;
-	NSSet* outNodes = [root outNodes];
-	for ( GraphNode* child in outNodes ) {
-		count += [self numDescendantsOfNode:child];
-		//NSLog(@"added descendants of %@ -> %i", child.key, count);
-	}
-	//NSLog(@"-> returning descendants of %@: %i", root.key, count+1);
-	return count+1;
-}
 
-- (void)buildGraphWithRoot:(GraphNode*)root maxNodes:(int)maxNodes depth:(int)depth
-{
-	if ( depth<=0 )
-		return;
-	if ( [self numDescendantsOfNode:root]>=maxNodes )
-		return;
-
-	// add N children to this root
-	int numChildren = arc4random_uniform(4);
-	for ( int i=0; i<numChildren; i++ )
-	{
-		NSLog(@"adding %i children", numChildren);
-		GraphNode* child = [GraphNode nodeWithKey:[NSString stringWithFormat:@"%@%c", root.key, 'A'+i]];
-		[self.graph addNode:child];
-		[self.graph addEdgeFromNode:root toNode:child];
-		
-		[self buildGraphWithRoot:child maxNodes:maxNodes/numChildren depth:depth-1];
-	}
-}
 
 - (void)viewDidLoad
 {
@@ -78,26 +48,14 @@
 	self.collectionView.backgroundColor = [UIColor whiteColor];
 	
 	//create the graph
-	self.graph = [[Graph alloc] init];
-	GraphNode* root = [GraphNode nodeWithKey:@"*"];
-	[self.graph addNode:root];
-	
-	// recursively build the graph
-	unsigned int numNodes = 25;
-	unsigned int maxDepth = 4;
-	while ( self.graph.nodes.count<numNodes )
-	{
-		NSLog(@"*** need to add %i more children", numNodes-self.graph.nodes.count);
-		[self buildGraphWithRoot:root maxNodes:numNodes depth:maxDepth];
-	}
-	
+	self.graph = [GraphBuilder buildGraph];
 	
 	self.dataSource = [[TreeDataSource alloc] initWithTree:self.graph];
 	self.collectionView.dataSource = self.dataSource;
 	self.collectionView.delegate = self;
 	
 	self.layout.tree = self.graph;
-	[self.layout.arranger anchorNode:root];
+	[self.layout.arranger anchorNode:[self.graph nodeWithKey:@"*"]];
 	
 	self.layout.dataSource = self.dataSource;
 	
@@ -116,7 +74,7 @@
 	
 	UISlider* pullSlider = [[UISlider alloc] initWithFrame:CGRectMake(0,60,300,10)];
 	[pullSlider setMinimumValue:0.0f];
-	[pullSlider setMaximumValue:0.1f];
+	[pullSlider setMaximumValue:1.0f];
 	[pullSlider addTarget:self action:@selector(pullSliderMoved:) forControlEvents:UIControlEventValueChanged];
 	[self.view addSubview:pullSlider];
 	
