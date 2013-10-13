@@ -114,10 +114,31 @@ static const float vCenter = 150.0f;
 		}
 		
 		// weight the hposition depending on how far away we are from switching to the next child -- closer we are, the more snapped we should be
-		float xPos = 150 + self.hPosition + count*60;
+		float xPos = 150 + self.hPosition*hDistance + count*60;
 		nodeView.center = CGPointMake(xPos, outPositionY);
 		count++;
 		[expectedVisibleNodes addObject:outNode.key];
+	}
+	
+	// grandchildren of selected
+	if ( outNodes.count ) {
+		GraphNode* selectedChild = [outNodes objectAtIndex:[self selectedChildIndex]];
+		float grandOutPositionY = outPositionY + vDistance;
+		float grandHDistanceFactor = 2.0f*fabsf(fmodf(self.hPosition,1.0f)+0.5f);
+		NSArray* grandOut = [[selectedChild outNodes] allObjects];
+		count = 0;
+		for ( GraphNode* outNode in grandOut ) {
+			NodeView* nodeView = [self nodeViewForNodeWithKey:outNode.key];
+			float xPos = 150 + count*hDistance + (self.hPosition+(float)[self selectedChildIndex])*hDistance;
+			if ( self.vPosition<0.8f ) {
+				nodeView.alpha = grandHDistanceFactor*(1.0f-(self.vPosition/0.8f));
+			} else {
+				nodeView.alpha = 0.0f;
+			}
+			nodeView.center = CGPointMake(xPos, grandOutPositionY);
+			count++;
+			[expectedVisibleNodes addObject:outNode.key];
+		}
 	}
 	
 	// wmork out which nodes to remove by intersecting with expectedVisibleNodes
@@ -147,7 +168,7 @@ static const float vCenter = 150.0f;
 {
 	GraphNode* central = [self.graph nodeWithKey:self.centralNodeKey];
 	NSArray* children = [[central outNodes] allObjects];
-	int childIdx = (int)(-self.hPosition / hDistance + 0.5f);
+	int childIdx = (int)(-(self.hPosition-0.5f));
 	childIdx = MIN(children.count-1,childIdx);
 	childIdx = MAX(0,childIdx);
 	return childIdx;
@@ -199,7 +220,7 @@ static const float vCenter = 150.0f;
 					oldHPosition = [[self.hPositionStack lastObject] floatValue];
 					[self.hPositionStack removeLastObject];
 				}
-				self.hPosition = oldHPosition-translation.x;
+				self.hPosition = oldHPosition-translation.x/hDistance;
 				self.positionAtStartDrag = CGPointMake(self.hPosition, self.positionAtStartDrag.y-1.0f);
 				newVPosition -= 1.0f;
 			} else {
@@ -211,7 +232,7 @@ static const float vCenter = 150.0f;
 			if ( gone ) {
 				// self.positionAtStartDrag.y += 1.0f
 				[self.hPositionStack addObject:@(self.hPosition)];
-				self.hPosition = -translation.x;
+				self.hPosition = -translation.x/hDistance;
 				self.positionAtStartDrag = CGPointMake(self.hPosition, self.positionAtStartDrag.y+1.0f);
 				newVPosition += 1.0f;
 			} else {
@@ -222,12 +243,12 @@ static const float vCenter = 150.0f;
 		
 		
 		// update h position
-		float newHPosition = self.positionAtStartDrag.x + translation.x;
+		float newHPosition = self.positionAtStartDrag.x + translation.x/hDistance;
 		if ( self.vPosition < 0.5f ) {
 			// snap
 			// find the nearest hPosition
-			float snappedHPosition = hDistance*(int)(newHPosition/hDistance - 0.5f);
-			NSLog(@"snappedHPos: %f", snappedHPosition);
+			float snappedHPosition = (int)(newHPosition-0.5f);
+			//NSLog(@"snappedHPos: %f", snappedHPosition);
 			//float snappedHPosition = hDistance * (float)((int)(self.hPosition/hDistance+0.5f));
 			//float snappedHPosition = self.hPosition - fmodf(self.hPosition+0.5f*hDistance,hDistance);
 			float vPositionWeightedHPosition = newHPosition*self.vPosition*2.0f + snappedHPosition*(1.0f-self.vPosition*2.0f);

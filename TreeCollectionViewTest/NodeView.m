@@ -30,7 +30,7 @@
     if (self) {
         // Initialization code
 		self.key = nil;
-		self.backgroundColor = [UIColor colorWithWhite:0 alpha:0.5f];
+		self.backgroundColor = [UIColor blackColor];
 		self.keyLabel = [[UILabel alloc] initWithFrame:self.bounds];
 		self.keyLabel.textColor = [UIColor whiteColor];
 		self.keyLabel.textAlignment = NSTextAlignmentCenter;
