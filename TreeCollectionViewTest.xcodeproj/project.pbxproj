@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D363DC01809CA7300441FF6 /* NodeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D363DBF1809CA7300441FF6 /* NodeView.m */; };
 		2D41C6CC1801DB770030EE5A /* GraphBrowseByScrollViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D41C6CB1801DB770030EE5A /* GraphBrowseByScrollViewController.m */; };
 		2D41C6CF1801DCA40030EE5A /* GraphBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D41C6CE1801DCA40030EE5A /* GraphBuilder.m */; };
 		2D93E0AA17FECAFE0010F6DA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D93E0A917FECAFE0010F6DA /* Foundation.framework */; };
@@ -43,6 +44,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2D363DBE1809CA7300441FF6 /* NodeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NodeView.h; sourceTree = "<group>"; };
+		2D363DBF1809CA7300441FF6 /* NodeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NodeView.m; sourceTree = "<group>"; };
 		2D41C6CA1801DB770030EE5A /* GraphBrowseByScrollViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphBrowseByScrollViewController.h; sourceTree = "<group>"; };
 		2D41C6CB1801DB770030EE5A /* GraphBrowseByScrollViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphBrowseByScrollViewController.m; sourceTree = "<group>"; };
 		2D41C6CD1801DCA40030EE5A /* GraphBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphBuilder.h; sourceTree = "<group>"; };
@@ -149,6 +152,8 @@
 				2D93E0BF17FECAFE0010F6DA /* GraphBrowseByCollectionViewController.m */,
 				2D41C6CD1801DCA40030EE5A /* GraphBuilder.h */,
 				2D41C6CE1801DCA40030EE5A /* GraphBuilder.m */,
+				2D363DBE1809CA7300441FF6 /* NodeView.h */,
+				2D363DBF1809CA7300441FF6 /* NodeView.m */,
 				2D93E14817FEDFD90010F6DA /* TreeCellView.h */,
 				2D93E14917FEDFD90010F6DA /* TreeCellView.m */,
 				2D93E0DE17FECB9F0010F6DA /* CollectionViewTreeLayout.h */,
@@ -321,6 +326,7 @@
 				2D93E0B617FECAFE0010F6DA /* main.m in Sources */,
 				2D41C6CC1801DB770030EE5A /* GraphBrowseByScrollViewController.m in Sources */,
 				2D93E13C17FECD0A0010F6DA /* GraphNode.m in Sources */,
+				2D363DC01809CA7300441FF6 /* NodeView.m in Sources */,
 				2DE2AF2C18018F30008098D7 /* CGPoint+Vector.m in Sources */,
 				2D93E12417FECCB10010F6DA /* ForceDirectedGraphArranger.m in Sources */,
 				2D93E14717FED3D30010F6DA /* TreeDataSource.m in Sources */,

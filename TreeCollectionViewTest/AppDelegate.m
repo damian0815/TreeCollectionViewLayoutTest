@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "GraphBrowseByCollectionViewController.h"
+#import "GraphBrowseByScrollViewController.h"
 
 @implementation AppDelegate
 
@@ -15,8 +16,8 @@
 {
     // Override point for customization after application launch.
 	
-	
-	GraphBrowseByCollectionViewController* rootViewController = [[GraphBrowseByCollectionViewController alloc] init];
+	GraphBrowseByScrollViewController* rootViewController = [[GraphBrowseByScrollViewController alloc] init];
+//	GraphBrowseByCollectionViewController* rootViewController = [[GraphBrowseByCollectionViewController alloc] init];
 	
 	
 	self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
