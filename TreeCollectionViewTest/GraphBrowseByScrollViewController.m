@@ -10,6 +10,7 @@
 #import "Graph.h"
 #import "GraphBuilder.h"
 #import "NodeView.h"
+#import <QuartzCore/QuartzCore.h>
 
 static const float viewWidth = 100.0f;
 
@@ -18,6 +19,8 @@ static const float hDistance = viewWidth+20.0f;
 
 static const float vCenter = 212;
 static const float hCenter = 384;
+
+static const float decelerateSpeed = 0.93f;
 
 static const BOOL doSnap = YES;
 
@@ -31,6 +34,7 @@ static const BOOL doSnap = YES;
 
 @property (assign,readwrite,atomic) BOOL doingDecelerate;
 @property (assign,readwrite,atomic) CGPoint velocity;
+@property (assign,readwrite,atomic) CGPoint decelerateTranslate;
 
 @property (assign,readwrite,atomic) CGPoint positionAtStartDrag;
 @property (strong,readwrite,atomic) NSMutableArray* hPositionStack;
@@ -41,6 +45,9 @@ static const BOOL doSnap = YES;
 @property (strong,readwrite,atomic) NSMutableDictionary* nodeViews;
 
 @property (strong,readwrite,atomic) CAShapeLayer* connectingLines;
+
+
+@property (strong,readwrite,atomic) CADisplayLink* displayLink;
 
 @end
 
@@ -58,6 +65,7 @@ static const BOOL doSnap = YES;
 
 		self.vPosition = 0.0f;
 		self.hPosition = 0.0f;
+		self.doingDecelerate = NO;
     }
     return self;
 }
@@ -82,10 +90,58 @@ static const BOOL doSnap = YES;
 	[self updateNodeViews];
 }
 
+- (void) viewDidAppear:(BOOL)animated
+{
+	[super viewDidAppear:animated];
+	if ( self.doingDecelerate ) {
+		[self startDisplayLink];
+	}
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+	[super viewWillDisappear:animated];
+	if ( self.doingDecelerate ) {
+		[self stopDisplayLink];
+	}
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void) startDisplayLink
+{
+	if ( !self.displayLink ) {
+		self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkTick:)];
+		[self.displayLink setFrameInterval:1];
+		[self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+	}
+}
+
+- (void) stopDisplayLink
+{
+	if ( self.displayLink ) {
+		[self.displayLink invalidate];
+		self.displayLink = nil;
+	}
+}
+
+- (void) displayLinkTick:(CADisplayLink*)displayLink
+{
+	// update deceleration
+	self.velocity = CGPointMake( self.velocity.x*decelerateSpeed, self.velocity.y*decelerateSpeed );
+	self.decelerateTranslate = CGPointMake(self.velocity.x*displayLink.duration+self.decelerateTranslate.x, self.velocity.y*displayLink.duration+self.decelerateTranslate.y );
+	[self updateScroll:self.decelerateTranslate];
+	if ( fabsf(self.velocity.x)<0.1f && fabsf(self.velocity.y)<0.1f ) {
+		self.doingDecelerate = NO;
+	}
+	
+	if ( !self.doingDecelerate ) {
+		[self stopDisplayLink];
+	}
 }
 
 - (void) setCentralNode:(GraphNode*)node
@@ -174,12 +230,12 @@ static const BOOL doSnap = YES;
 			} else {
 				nodeView.alpha = 0.0f;
 			}
+			nodeView.center = CGPointMake(xPos, grandOutPositionY);
 
 			// add path
 			[path moveToPoint:childNodeView.center];
 			[path addLineToPoint:nodeView.center];
 			
-			nodeView.center = CGPointMake(xPos, grandOutPositionY);
 			count++;
 			[expectedVisibleNodes addObject:outNode.key];
 		}
@@ -246,71 +302,91 @@ static const BOOL doSnap = YES;
 	}
 }
 
+- (void) updateScroll:(CGPoint)translation
+{
+	// update v position
+	float newHPositionNonPct = self.positionAtStartDrag.x*hDistance + translation.x;
+	float newVPositionNonPct = self.positionAtStartDrag.y*vDistance + translation.y;
+	
+	float newVPosition = newVPositionNonPct/vDistance;
+	while ( newVPosition>1.0f ) {
+		BOOL gone = [self goToCurrentParent];
+		if ( gone ) {
+			// self.positionAtStartDrag.y -= 1.0f
+			float oldHPosition = 0.0f;
+			if ( self.hPositionStack.count ) {
+				oldHPosition = [[self.hPositionStack lastObject] floatValue];
+				[self.hPositionStack removeLastObject];
+			}
+			self.hPosition = oldHPosition-translation.x/hDistance;
+			self.positionAtStartDrag = CGPointMake(self.hPosition, self.positionAtStartDrag.y-1.0f);
+			newVPosition -= 1.0f;
+		} else {
+			newVPosition = 1.0f;
+		}
+	}
+	while ( newVPosition<0.0f ) {
+		BOOL gone = [self goToCurrentChild];
+		if ( gone ) {
+			// self.positionAtStartDrag.y += 1.0f
+			[self.hPositionStack addObject:@(self.hPosition)];
+			self.hPosition = -translation.x/hDistance;
+			self.positionAtStartDrag = CGPointMake(self.hPosition, self.positionAtStartDrag.y+1.0f);
+			newVPosition += 1.0f;
+		} else {
+			newVPosition = 0.0f;
+		}
+	}
+	self.vPosition = newVPosition;
+	
+	
+	// update h position
+	float newHPosition = newHPositionNonPct/hDistance;
+	// clamp to [-childCount+0.5f..0.5f]
+	newHPosition = MAX(MIN(0.5f,newHPosition),-(float)self.centralNodeChildCount+0.5f);
+	if ( doSnap && self.vPosition < 0.5f ) {
+		// snap
+		// find the nearest hPosition
+		float snappedHPosition = (int)(newHPosition-0.5f);
+		//NSLog(@"snappedHPos: %f", snappedHPosition);
+		//float snappedHPosition = hDistance * (float)((int)(self.hPosition/hDistance+0.5f));
+		//float snappedHPosition = self.hPosition - fmodf(self.hPosition+0.5f*hDistance,hDistance);
+		float vPositionWeightedHPosition = newHPosition*self.vPosition*2.0f + snappedHPosition*(1.0f-self.vPosition*2.0f);
+		
+		newHPosition = vPositionWeightedHPosition;
+		//			NSLog(@"vPositionWeightedHPosition: %f, hPosition: %f, vPosition: %f", vPositionWeightedHPosition, self.hPosition, self.vPosition);
+		
+	}
+	self.hPosition = newHPosition;
+	
+	[self updateNodeViews];
+}
+
 - (void)handleScrollGesture:(UIPanGestureRecognizer*)gr
 {
 	if ( gr.state == UIGestureRecognizerStateBegan ) {
+		// cancel existing deceleration
+		[self stopDisplayLink];
+		self.doingDecelerate = NO;
 		self.positionAtStartDrag = CGPointMake(self.hPosition,self.vPosition);
 		
 	} else if ( gr.state == UIGestureRecognizerStateChanged ) {
 		CGPoint translation = [gr translationInView:self.view];
-		
-		// update v position
-		float newVPositionNonPct = self.positionAtStartDrag.y*vDistance + translation.y;
-		float newVPosition = newVPositionNonPct/vDistance;
-		while ( newVPosition>1.0f ) {
-			BOOL gone = [self goToCurrentParent];
-			if ( gone ) {
-				// self.positionAtStartDrag.y -= 1.0f
-				float oldHPosition = 0.0f;
-				if ( self.hPositionStack.count ) {
-					oldHPosition = [[self.hPositionStack lastObject] floatValue];
-					[self.hPositionStack removeLastObject];
-				}
-				self.hPosition = oldHPosition-translation.x/hDistance;
-				self.positionAtStartDrag = CGPointMake(self.hPosition, self.positionAtStartDrag.y-1.0f);
-				newVPosition -= 1.0f;
-			} else {
-				newVPosition = 1.0f;
-			}
-		}
-		while ( newVPosition<0.0f ) {
-			BOOL gone = [self goToCurrentChild];
-			if ( gone ) {
-				// self.positionAtStartDrag.y += 1.0f
-				[self.hPositionStack addObject:@(self.hPosition)];
-				self.hPosition = -translation.x/hDistance;
-				self.positionAtStartDrag = CGPointMake(self.hPosition, self.positionAtStartDrag.y+1.0f);
-				newVPosition += 1.0f;
-			} else {
-				newVPosition = 0.0f;
-			}
-		}
-		self.vPosition = newVPosition;
-		
-		
-		// update h position
-		float newHPosition = self.positionAtStartDrag.x + translation.x/hDistance;
-		// clamp to [-childCount+0.5f..0.5f]
-		newHPosition = MAX(MIN(0.5f,newHPosition),-(float)self.centralNodeChildCount+0.5f);
-		if ( doSnap && self.vPosition < 0.5f ) {
-			// snap
-			// find the nearest hPosition
-			float snappedHPosition = (int)(newHPosition-0.5f);
-			//NSLog(@"snappedHPos: %f", snappedHPosition);
-			//float snappedHPosition = hDistance * (float)((int)(self.hPosition/hDistance+0.5f));
-			//float snappedHPosition = self.hPosition - fmodf(self.hPosition+0.5f*hDistance,hDistance);
-			float vPositionWeightedHPosition = newHPosition*self.vPosition*2.0f + snappedHPosition*(1.0f-self.vPosition*2.0f);
+		[self updateScroll:translation];
 
-			newHPosition = vPositionWeightedHPosition;
-//			NSLog(@"vPositionWeightedHPosition: %f, hPosition: %f, vPosition: %f", vPositionWeightedHPosition, self.hPosition, self.vPosition);
-		
-		}
-		self.hPosition = newHPosition;
-		
-		[self updateNodeViews];
-		
+	
 	} else if ( gr.state == UIGestureRecognizerStateEnded ) {
 		
+		// start deceleration
+		self.doingDecelerate = YES;
+		self.velocity = [gr velocityInView:self.view];
+		self.decelerateTranslate = [gr translationInView:self.view];
+		NSLog(@"starting scroll with velocity %@", NSStringFromCGPoint(self.velocity));
+		[self startDisplayLink];
+		
+	} else {
+		
+		// nothing more to do
 	}
 	
 }
