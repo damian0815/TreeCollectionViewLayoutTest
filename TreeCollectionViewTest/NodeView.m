@@ -33,7 +33,9 @@
 		self.backgroundColor = [UIColor blackColor];
 		self.keyLabel = [[UILabel alloc] initWithFrame:self.bounds];
 		self.keyLabel.textColor = [UIColor whiteColor];
+		self.keyLabel.backgroundColor = [UIColor clearColor];
 		self.keyLabel.textAlignment = NSTextAlignmentCenter;
+		self.keyLabel.font = [UIFont systemFontOfSize:32.0f];
 		[self addSubview:self.keyLabel];
     }
     return self;

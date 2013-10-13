@@ -31,6 +31,7 @@
 		2D93E14717FED3D30010F6DA /* TreeDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D93E14617FED3D30010F6DA /* TreeDataSource.m */; };
 		2D93E14A17FEDFD90010F6DA /* TreeCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D93E14917FEDFD90010F6DA /* TreeCellView.m */; };
 		2DE2AF2C18018F30008098D7 /* CGPoint+Vector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2DE2AF2B18018F30008098D7 /* CGPoint+Vector.m */; };
+		2DF87421180AA027005D7725 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DF87420180AA027005D7725 /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +85,7 @@
 		2D93E14917FEDFD90010F6DA /* TreeCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TreeCellView.m; sourceTree = "<group>"; };
 		2DE2AF2B18018F30008098D7 /* CGPoint+Vector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CGPoint+Vector.m"; sourceTree = "<group>"; };
 		2DE2AF2D18018F3E008098D7 /* CGPoint+Vector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CGPoint+Vector.h"; sourceTree = "<group>"; };
+		2DF87420180AA027005D7725 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +93,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2DF87421180AA027005D7725 /* QuartzCore.framework in Frameworks */,
 				2D93E0AC17FECAFE0010F6DA /* CoreGraphics.framework in Frameworks */,
 				2D93E0AE17FECAFE0010F6DA /* UIKit.framework in Frameworks */,
 				2D93E0AA17FECAFE0010F6DA /* Foundation.framework in Frameworks */,
@@ -113,6 +116,7 @@
 		2D93E09D17FECAFE0010F6DA = {
 			isa = PBXGroup;
 			children = (
+				2DF87420180AA027005D7725 /* QuartzCore.framework */,
 				2D93E0AF17FECAFE0010F6DA /* TreeCollectionViewTest */,
 				2D93E0CE17FECAFF0010F6DA /* TreeCollectionViewTestTests */,
 				2D93E0A817FECAFE0010F6DA /* Frameworks */,
@@ -451,7 +455,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TreeCollectionViewTest/TreeCollectionViewTest-Prefix.pch";
 				INFOPLIST_FILE = "TreeCollectionViewTest/TreeCollectionViewTest-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 2;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -464,7 +470,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TreeCollectionViewTest/TreeCollectionViewTest-Prefix.pch";
 				INFOPLIST_FILE = "TreeCollectionViewTest/TreeCollectionViewTest-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 2;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

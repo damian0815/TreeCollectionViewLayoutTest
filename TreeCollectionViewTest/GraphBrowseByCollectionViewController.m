@@ -12,6 +12,7 @@
 #import "TreeCellView.h"
 #import "TreeDataSource.h"
 #import "GraphBuilder.h"
+#import <QuartzCore/QuartzCore.h>
 
 @interface GraphBrowseByCollectionViewController ()
 

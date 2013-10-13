@@ -45,7 +45,7 @@
 	for ( unsigned int i=0; i<count; i++ ) {
 		NSIndexPath* indexPath = [NSIndexPath indexPathForRow:i inSection:0];
 		UICollectionViewLayoutAttributes* attributes = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
-		attributes.bounds = CGRectMake(0,0,80,40);
+		attributes.frame = CGRectMake(0,0,80,40);
 		
 		GraphNode* node = [self.dataSource nodeForIndexPath:indexPath];
 		attributes.center = [self.arranger positionForNode:node.key];
@@ -65,8 +65,8 @@
 	for ( unsigned int i=0; i<count; i++ ) {
 		NSIndexPath* indexPath = [NSIndexPath indexPathForRow:i inSection:0];
 		UICollectionViewLayoutAttributes* attributes = [UICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:indexPath];
-		attributes.bounds = CGRectMake(0,0,arc4random_uniform(40)+20, arc4random_uniform(40)+20);
-		attributes.center = CGPointMake(arc4random_uniform(500), arc4random_uniform(1000));
+		CGSize size = CGSizeMake(arc4random_uniform(40)+20, arc4random_uniform(40)+20);
+		attributes.frame = CGRectMake( arc4random_uniform(500)-size.width/2, arc4random_uniform(1000)-size.height/2, size.width, size.height);
 		
 		NSString* label = [self.dataSource labelForNodeWithIndexPath:indexPath];
 		[self.layoutAttributesPerIndexPath setObject:attributes forKey:label];

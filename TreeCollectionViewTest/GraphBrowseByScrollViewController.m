@@ -11,10 +11,15 @@
 #import "GraphBuilder.h"
 #import "NodeView.h"
 
-static const float vDistance = 100.0f;
-static const float hDistance = 60.0f;
-static const float vCenter = 150.0f;
+static const float viewWidth = 100.0f;
 
+static const float vDistance = 300.0f;
+static const float hDistance = viewWidth+20.0f;
+
+static const float vCenter = 212;
+static const float hCenter = 384;
+
+static const BOOL doSnap = YES;
 
 @interface GraphBrowseByScrollViewController () <UIGestureRecognizerDelegate>
 
@@ -24,12 +29,18 @@ static const float vCenter = 150.0f;
 @property (assign,readwrite,atomic) float vPosition;
 @property (assign,readwrite,atomic) float hPosition;
 
+@property (assign,readwrite,atomic) BOOL doingDecelerate;
+@property (assign,readwrite,atomic) CGPoint velocity;
+
 @property (assign,readwrite,atomic) CGPoint positionAtStartDrag;
 @property (strong,readwrite,atomic) NSMutableArray* hPositionStack;
 
 @property (copy,readwrite,atomic) NSString* centralNodeKey;
+@property (assign,readwrite,atomic) int centralNodeChildCount;
 
 @property (strong,readwrite,atomic) NSMutableDictionary* nodeViews;
+
+@property (strong,readwrite,atomic) CAShapeLayer* connectingLines;
 
 @end
 
@@ -43,7 +54,8 @@ static const float vCenter = 150.0f;
 		self.graph = [GraphBuilder buildGraph];
 		self.nodeViews = [NSMutableDictionary dictionary];
 		self.hPositionStack = [NSMutableArray array];
-		self.centralNodeKey = @"*";
+		[self setCentralNode:[self.graph nodeWithKey:@"*"]];
+
 		self.vPosition = 0.0f;
 		self.hPosition = 0.0f;
     }
@@ -61,6 +73,12 @@ static const float vCenter = 150.0f;
 	[self.scrollDetector setDelegate:self];
 	[self.view addGestureRecognizer:self.scrollDetector];
 	
+	self.connectingLines = [[CAShapeLayer alloc] init];
+	self.connectingLines.strokeColor = [[UIColor grayColor] CGColor];
+	self.connectingLines.fillColor = nil;
+	self.connectingLines.lineWidth = 2.0f;
+	[self.view.layer addSublayer:self.connectingLines];
+	
 	[self updateNodeViews];
 }
 
@@ -68,6 +86,12 @@ static const float vCenter = 150.0f;
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void) setCentralNode:(GraphNode*)node
+{
+	self.centralNodeKey = @"*";
+	self.centralNodeChildCount = [node outDegree];
 }
 
 
@@ -83,9 +107,12 @@ static const float vCenter = 150.0f;
 	
 	GraphNode* centralNode = [self.graph nodeWithKey:self.centralNodeKey];
 	[expectedVisibleNodes addObject:centralNode.key];
-	NodeView* nodeView = [self nodeViewForNodeWithKey:centralNode.key];
-	nodeView.alpha = 1.0f;
-	nodeView.center = CGPointMake(150, vCenter+self.vPosition*vDistance);
+	NodeView* centralNodeView = [self nodeViewForNodeWithKey:centralNode.key];
+	centralNodeView.alpha = 1.0f;
+	centralNodeView.center = CGPointMake(hCenter, vCenter+self.vPosition*vDistance);
+	
+	UIBezierPath* path = [[UIBezierPath alloc] init];
+	
 	
 	// in nodes
 	NSArray* inNodes = [[centralNode inNodes] allObjects];
@@ -94,8 +121,13 @@ static const float vCenter = 150.0f;
 	for ( GraphNode* inNode in inNodes ) {
 		NodeView* nodeView = [self nodeViewForNodeWithKey:inNode.key];
 		nodeView.alpha = alphaIn;
-		float xPos = 150 + (1.0f-self.vPosition)*(count*50)+count*10;
+		float xPos = hCenter + (1.0f-self.vPosition)*(count*(hDistance-20))+count*20;
 		nodeView.center = CGPointMake(xPos, inPositionY);
+		
+		// add path
+		[path moveToPoint:centralNodeView.center];
+		[path addLineToPoint:nodeView.center];
+		
 		count++;
 		[expectedVisibleNodes addObject:inNode.key];
 	}
@@ -114,8 +146,13 @@ static const float vCenter = 150.0f;
 		}
 		
 		// weight the hposition depending on how far away we are from switching to the next child -- closer we are, the more snapped we should be
-		float xPos = 150 + self.hPosition*hDistance + count*60;
+		float xPos = hCenter + self.hPosition*hDistance + count*hDistance;
 		nodeView.center = CGPointMake(xPos, outPositionY);
+		
+		// add path
+		[path moveToPoint:centralNodeView.center];
+		[path addLineToPoint:nodeView.center];
+		
 		count++;
 		[expectedVisibleNodes addObject:outNode.key];
 	}
@@ -123,23 +160,32 @@ static const float vCenter = 150.0f;
 	// grandchildren of selected
 	if ( outNodes.count ) {
 		GraphNode* selectedChild = [outNodes objectAtIndex:[self selectedChildIndex]];
+		NodeView* childNodeView = [self nodeViewForNodeWithKey:selectedChild.key];
+		
 		float grandOutPositionY = outPositionY + vDistance;
 		float grandHDistanceFactor = 2.0f*fabsf(fmodf(self.hPosition,1.0f)+0.5f);
 		NSArray* grandOut = [[selectedChild outNodes] allObjects];
 		count = 0;
 		for ( GraphNode* outNode in grandOut ) {
 			NodeView* nodeView = [self nodeViewForNodeWithKey:outNode.key];
-			float xPos = 150 + count*hDistance + (self.hPosition+(float)[self selectedChildIndex])*hDistance;
+			float xPos = hCenter + count*hDistance + (self.hPosition+(float)[self selectedChildIndex])*hDistance;
 			if ( self.vPosition<0.8f ) {
 				nodeView.alpha = grandHDistanceFactor*(1.0f-(self.vPosition/0.8f));
 			} else {
 				nodeView.alpha = 0.0f;
 			}
+
+			// add path
+			[path moveToPoint:childNodeView.center];
+			[path addLineToPoint:nodeView.center];
+			
 			nodeView.center = CGPointMake(xPos, grandOutPositionY);
 			count++;
 			[expectedVisibleNodes addObject:outNode.key];
 		}
 	}
+	
+	self.connectingLines.path = [path CGPath];
 	
 	// wmork out which nodes to remove by intersecting with expectedVisibleNodes
 	NSMutableSet* visibleNodes = [NSMutableSet setWithArray:[self.nodeViews allKeys]];
@@ -157,7 +203,7 @@ static const float vCenter = 150.0f;
 {
 	NodeView* v = [self.nodeViews objectForKey:key];
 	if ( !v ) {
-		v = [NodeView nodeViewWithFrame:CGRectMake(0,0,50,50) forNodeWithKey:key];
+		v = [NodeView nodeViewWithFrame:CGRectMake(0,0,viewWidth,viewWidth/2) forNodeWithKey:key];
 		[self.nodeViews setObject:v forKey:key];
 		[self.view addSubview:v];
 	}
@@ -166,10 +212,8 @@ static const float vCenter = 150.0f;
 
 - (unsigned int)selectedChildIndex
 {
-	GraphNode* central = [self.graph nodeWithKey:self.centralNodeKey];
-	NSArray* children = [[central outNodes] allObjects];
 	int childIdx = (int)(-(self.hPosition-0.5f));
-	childIdx = MIN(children.count-1,childIdx);
+	childIdx = MIN(self.centralNodeChildCount-1,childIdx);
 	childIdx = MAX(0,childIdx);
 	return childIdx;
 }
@@ -181,6 +225,7 @@ static const float vCenter = 150.0f;
 	if ( children.count ) {
 		GraphNode* currentChild = [children objectAtIndex:[self selectedChildIndex]];
 		self.centralNodeKey = currentChild.key;
+		self.centralNodeChildCount = currentChild.outDegree;
 		return YES;
 	} else {
 		return NO;
@@ -194,6 +239,7 @@ static const float vCenter = 150.0f;
 	if ( parents.count ) {
 		GraphNode* currentParent = [parents objectAtIndex:0];
 		self.centralNodeKey = currentParent.key;
+		self.centralNodeChildCount = currentParent.outDegree;
 		return YES;
 	} else {
 		return NO;
@@ -244,7 +290,9 @@ static const float vCenter = 150.0f;
 		
 		// update h position
 		float newHPosition = self.positionAtStartDrag.x + translation.x/hDistance;
-		if ( self.vPosition < 0.5f ) {
+		// clamp to [-childCount+0.5f..0.5f]
+		newHPosition = MAX(MIN(0.5f,newHPosition),-(float)self.centralNodeChildCount+0.5f);
+		if ( doSnap && self.vPosition < 0.5f ) {
 			// snap
 			// find the nearest hPosition
 			float snappedHPosition = (int)(newHPosition-0.5f);
